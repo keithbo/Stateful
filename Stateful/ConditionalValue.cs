@@ -1,6 +1,6 @@
 ﻿namespace Stateful
 {
-    public class ConditionalValue<T>
+    public sealed class ConditionalValue<T>
     {
         public bool HasValue { get; }
 

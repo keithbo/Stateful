@@ -6,7 +6,9 @@
 
     public interface ICollectionState<T> : IEnumerableState<T>
     {
-        Task<int> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
+
+        Task<bool> ContainsAsync(T value, IEqualityComparer<T> equalityComparer, CancellationToken cancellationToken = default(CancellationToken));
 
         Task AddAsync(T value, CancellationToken cancellationToken = default(CancellationToken));
 

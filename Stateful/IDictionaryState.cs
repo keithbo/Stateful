@@ -1,10 +1,12 @@
 ﻿namespace Stateful
 {
+    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
 
     public interface IDictionaryState<TKey, TValue> : ICollectionState<KeyValuePair<TKey, TValue>>
+        where TKey : IEquatable<TKey>, IComparable<TKey>
     {
         Task<bool> ContainsKeyAsync(TKey key, CancellationToken cancellationToken = default(CancellationToken));
 

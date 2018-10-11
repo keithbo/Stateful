@@ -5,6 +5,8 @@
 
     public interface IState
     {
+        string Name { get; }
+
         Task<bool> HasStateAsync(CancellationToken cancellationToken = default(CancellationToken));
 
         Task DeleteStateAsync(CancellationToken cancellationToken = default(CancellationToken));

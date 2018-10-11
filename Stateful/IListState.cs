@@ -7,18 +7,16 @@
 
     public interface IListState<T> : ICollectionState<T>
     {
-        Task<bool> ContainsAsync(T value, CancellationToken cancellationToken = default(CancellationToken));
+        Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<List<T>> GetAsync(CancellationToken cancellationToken = default(CancellationToken));
+        Task<ConditionalValue<T>> TryGetAsync(long index, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<T> GetAsync(int index, CancellationToken cancellationToken = default(CancellationToken));
+        Task<ConditionalValue<T>> TryFindAsync(Predicate<T> match, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<T> FindAsync(Predicate<T> match, CancellationToken cancellationToken = default(CancellationToken));
+        Task InsertAsync(long index, T value, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task InsertAsync(int index, T value, CancellationToken cancellationToken = default(CancellationToken));
+        Task RemoveAtAsync(long index, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task RemoveAtAsync(int index, CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<bool> RemoveAsync(T value, CancellationToken cancellationToken = default(CancellationToken));
+        Task RemoveAsync(Predicate<T> match, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

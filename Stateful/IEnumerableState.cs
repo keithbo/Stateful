@@ -1,6 +1,6 @@
 ﻿namespace Stateful
 {
-    public interface IEnumerableState<T> : IState
+    public interface IEnumerableState<out T> : IState
     {
         IAsyncEnumerator<T> GetAsyncEnumerator();
     }
