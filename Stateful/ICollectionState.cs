@@ -1,6 +1,6 @@
 ﻿namespace Stateful
 {
-    using System.Collections.Generic;
+    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -8,10 +8,6 @@
     {
         Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken));
 
-        Task<bool> ContainsAsync(T value, IEqualityComparer<T> equalityComparer, CancellationToken cancellationToken = default(CancellationToken));
-
-        Task AddAsync(T value, CancellationToken cancellationToken = default(CancellationToken));
-
-        Task AddRangeAsync(IEnumerable<T> values, CancellationToken cancellationToken = default(CancellationToken));
+        Task<bool> ContainsAsync(Predicate<T> predicate, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

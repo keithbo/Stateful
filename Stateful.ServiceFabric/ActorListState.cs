@@ -174,7 +174,7 @@
         }
 
         /// <inheritdoc />
-        public async Task<bool> ContainsAsync(T value, IEqualityComparer<T> equalityComparer, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<bool> ContainsAsync(Predicate<T> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
             var manifestResult = await _stateManager.TryGetStateAsync<ListManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
@@ -183,8 +183,7 @@
             }
 
             var manifest = manifestResult.Value;
-            equalityComparer = equalityComparer ?? EqualityComparer<T>.Default;
-            var (foundKey, foundNode) = await FindNodeAsync(manifest.First, (key, node) => equalityComparer.Equals(value, node.Value), cancellationToken);
+            var (foundKey, foundNode) = await FindNodeAsync(manifest.First, (key, node) => predicate(node.Value), cancellationToken);
 
             return foundNode != null;
         }

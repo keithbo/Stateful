@@ -10,7 +10,7 @@
 
         IDictionaryState<TKey, TValue> CreateDictionaryState<TKey, TValue>(string name) where TKey : IEquatable<TKey>, IComparable<TKey>;
 
-        IBagState<T> CreateBagState<T>(string name);
+        IArrayState<T> CreateArrayState<T>(string name, long length);
 
         IQueueState<T> CreateQueueState<T>(string name);
 

@@ -31,9 +31,9 @@
         }
 
         /// <inheritdoc />
-        public IBagState<T> CreateBagState<T>(string name)
+        public IArrayState<T> CreateArrayState<T>(string name, long length)
         {
-            throw new NotImplementedException();
+            return new ActorArrayState<T>(_stateManager, name, length);
         }
 
         /// <inheritdoc />

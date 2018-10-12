@@ -13,6 +13,10 @@
 
         Task<ConditionalValue<T>> TryFindAsync(Predicate<T> match, CancellationToken cancellationToken = default(CancellationToken));
 
+        Task AddAsync(T value, CancellationToken cancellationToken = default(CancellationToken));
+
+        Task AddRangeAsync(IEnumerable<T> values, CancellationToken cancellationToken = default(CancellationToken));
+
         Task InsertAsync(long index, T value, CancellationToken cancellationToken = default(CancellationToken));
 
         Task RemoveAtAsync(long index, CancellationToken cancellationToken = default(CancellationToken));
