@@ -39,7 +39,7 @@
         /// <inheritdoc />
         public IQueueState<T> CreateQueueState<T>(string name)
         {
-            throw new NotImplementedException();
+            return new ActorQueueState<T>(_stateManager, name);
         }
 
         /// <inheritdoc />

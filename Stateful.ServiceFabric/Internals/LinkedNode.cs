@@ -2,8 +2,8 @@
 {
     using System.Runtime.Serialization;
 
-    [DataContract(Name = "ListNode_{0}", Namespace = "urn:Stateful/ServiceFabric/2018/10")]
-    public class ListNode<T>
+    [DataContract(Name = "LinkedNode_{0}", Namespace = "urn:Stateful/ServiceFabric/2018/10")]
+    public class LinkedNode<T>
     {
         [DataMember]
         public long? Previous { get; set; }
