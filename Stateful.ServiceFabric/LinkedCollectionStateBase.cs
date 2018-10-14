@@ -1,6 +1,7 @@
 ﻿namespace Stateful.ServiceFabric
 {
     using System;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -55,7 +56,7 @@
         }
 
         /// <inheritdoc />
-        public async Task<bool> ContainsAsync(Predicate<T> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<bool> ContainsAsync(Predicate<T> predicate, CancellationToken cancellationToken)
         {
             var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
@@ -75,7 +76,141 @@
             return new AsyncEnumerator(this);
         }
 
-        protected async Task InsertCoreAsync(long position, T value, CancellationToken cancellationToken = default(CancellationToken))
+        /// <summary>
+        /// Insert a sequence of values before the current 0th node of the collection
+        /// </summary>
+        /// <param name="values">sequence of values to insert</param>
+        /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+        /// <returns><see cref="Task"/></returns>
+        protected async Task InsertFirstAsync(IEnumerable<T> values, CancellationToken cancellationToken)
+        {
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedNodeManifest();
+
+            var oldFirstIndex = manifest.First;
+            string oldFirstKey = null;
+            LinkedNode<T> oldFirstNode = null;
+            if (oldFirstIndex.HasValue)
+            {
+                oldFirstKey = IndexToKey(oldFirstIndex.Value);
+                oldFirstNode = await StateManager.GetStateAsync<LinkedNode<T>>(oldFirstKey, cancellationToken);
+            }
+
+            long? previousIndex = null;
+            string previousKey = null;
+            LinkedNode<T> previousNode = null;
+
+            foreach (var value in values)
+            {
+                var newIndex = NextIndex(manifest);
+                var newKey = IndexToKey(newIndex);
+                var newNode = new LinkedNode<T>
+                {
+                    Value = value,
+                    Previous = previousIndex,
+                    Next = oldFirstIndex
+                };
+
+                if (oldFirstNode != null)
+                {
+                    oldFirstNode.Previous = newIndex;
+                }
+
+                if (previousNode == null)
+                {
+                    manifest.First = newIndex;
+                }
+                else
+                {
+                    previousNode.Next = newIndex;
+                    await StateManager.SetStateAsync(previousKey, previousNode, cancellationToken);
+                }
+
+                manifest.Count++;
+
+                previousIndex = newIndex;
+                previousKey = newKey;
+                previousNode = newNode;
+            }
+
+            if (previousNode != null)
+            {
+                await StateManager.SetStateAsync(previousKey, previousNode, cancellationToken);
+            }
+
+            if (oldFirstNode != null)
+            {
+                await StateManager.SetStateAsync(oldFirstKey, oldFirstNode, cancellationToken);
+            }
+
+            manifest.Last = manifest.Last ?? previousIndex;
+
+            await StateManager.SetStateAsync(Name, manifest, cancellationToken);
+        }
+
+        /// <summary>
+        /// Insert a sequence of values after the current Nth node of the collection
+        /// </summary>
+        /// <param name="values">sequence of values to insert</param>
+        /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+        /// <returns><see cref="Task"/></returns>
+        protected async Task InsertLastAsync(IEnumerable<T> values, CancellationToken cancellationToken)
+        {
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedNodeManifest();
+
+            string previousKey = null;
+            LinkedNode<T> previousNode = null;
+            if (manifest.Last.HasValue)
+            {
+                previousKey = IndexToKey(manifest.Last.Value);
+                previousNode = await StateManager.GetStateAsync<LinkedNode<T>>(previousKey, cancellationToken);
+            }
+
+            foreach (var value in values)
+            {
+                var newIndex = NextIndex(manifest);
+                var newKey = IndexToKey(newIndex);
+                var newNode = new LinkedNode<T>
+                {
+                    Value = value,
+                    Previous = previousNode?.Next
+                };
+
+                if (previousNode != null)
+                {
+                    previousNode.Next = newIndex;
+                    await StateManager.SetStateAsync(previousKey, previousNode, cancellationToken);
+                }
+
+                manifest.Count++;
+                manifest.Last = newIndex;
+
+                if (!manifest.First.HasValue)
+                {
+                    manifest.First = newIndex;
+                }
+
+                previousKey = newKey;
+                previousNode = newNode;
+            }
+
+            if (previousNode != null)
+            {
+                await StateManager.SetStateAsync(previousKey, previousNode, cancellationToken);
+            }
+
+            await StateManager.SetStateAsync(Name, manifest, cancellationToken);
+        }
+
+        /// <summary>
+        /// Insert a sequence of values before the current <paramref name="position"/>th node of the collection
+        /// </summary>
+        /// <param name="position">index of the node to insert values before</param>
+        /// <param name="values">sequence of values to insert</param>
+        /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+        /// <returns><see cref="Task"/></returns>
+        protected async Task InsertAtAsync(long position, IEnumerable<T> values, CancellationToken cancellationToken)
         {
             var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
             var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedNodeManifest();
@@ -88,7 +223,7 @@
             long i = 0;
             string previousKey = null;
             LinkedNode<T> previousNode = null;
-            var (foundKey, foundNode) = await FindNodeAsync(manifest.First, (key, node) =>
+            var (insertBeforeKey, insertBeforeNode) = await FindNodeAsync(manifest.First, (key, node) =>
             {
                 var success = i++ == position;
                 if (!success)
@@ -100,38 +235,49 @@
                 return success;
             }, cancellationToken);
 
-            var newIndex = NextIndex(manifest);
-            var newKey = IndexToKey(newIndex);
-            var newNode = new LinkedNode<T>
+            foreach (var value in values)
             {
-                Value = value,
-                Next = previousNode?.Next ?? manifest.First,
-                Previous = foundNode?.Previous ?? manifest.Last
-            };
+                var newIndex = NextIndex(manifest);
+                var newKey = IndexToKey(newIndex);
+                var newNode = new LinkedNode<T>
+                {
+                    Value = value,
+                    Next = previousNode?.Next ?? manifest.First,
+                    Previous = insertBeforeNode?.Previous ?? manifest.Last
+                };
 
-            await StateManager.AddStateAsync(newKey, newNode, cancellationToken);
+                await StateManager.AddStateAsync(newKey, newNode, cancellationToken);
 
-            if (previousNode == null)
-            {
-                manifest.First = newIndex;
-            }
-            else
-            {
-                previousNode.Next = newIndex;
-                await StateManager.SetStateAsync(previousKey, previousNode, cancellationToken);
+                manifest.Count++;
+
+                if (previousNode == null)
+                {
+                    manifest.First = newIndex;
+                }
+                else
+                {
+                    previousNode.Next = newIndex;
+                    await StateManager.SetStateAsync(previousKey, previousNode, cancellationToken);
+                }
+
+                if (insertBeforeNode == null)
+                {
+                    manifest.Last = newIndex;
+                }
+                else
+                {
+                    insertBeforeNode.Previous = newIndex;
+                }
+
+                previousKey = newKey;
+                previousNode = newNode;
             }
 
-            if (foundNode == null)
+            if (insertBeforeNode != null)
             {
-                manifest.Last = newIndex;
-            }
-            else
-            {
-                foundNode.Previous = newIndex;
-                await StateManager.SetStateAsync(foundKey, foundNode, cancellationToken);
+                await StateManager.SetStateAsync(insertBeforeKey, insertBeforeNode, cancellationToken);
             }
 
-            manifest.Count++;
             await StateManager.SetStateAsync(Name, manifest, cancellationToken);
         }
 
@@ -209,7 +355,7 @@
             public T Current => _currentNode != null ? _currentNode.Value : default(T);
 
             /// <inheritdoc />
-            public async Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
             {
                 var stateManager = _source.StateManager;
                 if (_currentNode == null)

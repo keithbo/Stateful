@@ -13,7 +13,7 @@
         }
 
         /// <inheritdoc />
-        public async Task<ConditionalValue<T>> TryPeekAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ConditionalValue<T>> TryPeekAsync(CancellationToken cancellationToken)
         {
             var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
@@ -33,39 +33,13 @@
         }
 
         /// <inheritdoc />
-        public async Task EnqueueAsync(T value, CancellationToken cancellationToken = default(CancellationToken))
+        public Task EnqueueAsync(T value, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
-            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedNodeManifest();
-            manifest.Count++;
-
-            var newIndex = NextIndex(manifest);
-            var newKey = IndexToKey(newIndex);
-            var newNode = new LinkedNode<T>
-            {
-                Value = value,
-                Previous = manifest.Last
-            };
-            manifest.Last = newIndex;
-            if (!manifest.First.HasValue)
-            {
-                manifest.First = newIndex;
-            }
-
-            if (newNode.Previous.HasValue)
-            {
-                var lastKey = IndexToKey(newNode.Previous.Value);
-                var lastNode = await StateManager.GetStateAsync<LinkedNode<T>>(lastKey, cancellationToken);
-                lastNode.Next = newIndex;
-                await StateManager.SetStateAsync(lastKey, lastNode, cancellationToken);
-            }
-
-            await StateManager.AddStateAsync(newKey, newNode, cancellationToken);
-            await StateManager.SetStateAsync(Name, manifest, cancellationToken);
+            return InsertFirstAsync(new [] { value }, cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<ConditionalValue<T>> TryDequeueAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ConditionalValue<T>> TryDequeueAsync(CancellationToken cancellationToken)
         {
             var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)

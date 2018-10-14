@@ -19,6 +19,8 @@
 
         Task InsertAsync(long index, T value, CancellationToken cancellationToken = default(CancellationToken));
 
+        Task InsertRangeAsync(long index, IEnumerable<T> values, CancellationToken cancellationToken = default(CancellationToken));
+
         Task RemoveAtAsync(long index, CancellationToken cancellationToken = default(CancellationToken));
 
         Task RemoveAsync(Predicate<T> match, CancellationToken cancellationToken = default(CancellationToken));

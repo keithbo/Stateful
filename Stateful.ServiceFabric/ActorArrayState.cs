@@ -1,7 +1,6 @@
 ﻿namespace Stateful.ServiceFabric
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
@@ -36,7 +35,7 @@
         }
 
         /// <inheritdoc />
-        public async Task DeleteStateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task DeleteStateAsync(CancellationToken cancellationToken)
         {
             var actualLength = await _stateManager.TryGetStateAsync<long>(Name, cancellationToken);
             if (!actualLength.HasValue)
@@ -55,14 +54,14 @@
         }
 
         /// <inheritdoc />
-        public async Task<long> CountAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<long> CountAsync(CancellationToken cancellationToken)
         {
             await ValidateLengthAsync(cancellationToken);
             return Length;
         }
 
         /// <inheritdoc />
-        public async Task<bool> ContainsAsync(Predicate<T> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<bool> ContainsAsync(Predicate<T> predicate, CancellationToken cancellationToken)
         {
             await ValidateLengthAsync(cancellationToken);
 
@@ -80,7 +79,7 @@
         }
 
         /// <inheritdoc />
-        public async Task<T> GetAsync(long index, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<T> GetAsync(long index, CancellationToken cancellationToken)
         {
             await ValidateLengthAsync(cancellationToken);
             if (index < 0 || index >= Length)
@@ -93,7 +92,7 @@
         }
 
         /// <inheritdoc />
-        public async Task SetAsync(long index, T value, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task SetAsync(long index, T value, CancellationToken cancellationToken)
         {
             await ValidateLengthAsync(cancellationToken);
             if (index < 0 || index >= Length)
@@ -142,7 +141,7 @@
             public T Current { get; private set; }
 
             /// <inheritdoc />
-            public async Task<bool> MoveNextAsync(CancellationToken cancellationToken = default(CancellationToken))
+            public async Task<bool> MoveNextAsync(CancellationToken cancellationToken)
             {
                 await _array.ValidateLengthAsync(cancellationToken);
                 var stateManager = _array._stateManager;
