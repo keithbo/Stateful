@@ -5,9 +5,9 @@
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Stateful.ServiceFabric.Internals;
 
-    public class ActorQueueState<T> : LinkedCollectionStateBase<T>, IQueueState<T>
+    public class ActorStackState<T> : LinkedCollectionStateBase<T>, IStackState<T>
     {
-        public ActorQueueState(IActorStateManager stateManager, string name)
+        public ActorStackState(IActorStateManager stateManager, string name)
             : base(stateManager, name)
         {
         }
@@ -33,13 +33,13 @@
         }
 
         /// <inheritdoc />
-        public Task EnqueueAsync(T value, CancellationToken cancellationToken)
+        public Task PushAsync(T value, CancellationToken cancellationToken)
         {
-            return InsertLastAsync(new [] { value }, cancellationToken);
+            return InsertFirstAsync(new [] { value }, cancellationToken);
         }
 
         /// <inheritdoc />
-        public async Task<ConditionalValue<T>> TryDequeueAsync(CancellationToken cancellationToken)
+        public async Task<ConditionalValue<T>> TryPopAsync(CancellationToken cancellationToken)
         {
             var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)

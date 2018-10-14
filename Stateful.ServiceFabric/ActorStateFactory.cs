@@ -45,7 +45,7 @@
         /// <inheritdoc />
         public IStackState<T> CreateStackState<T>(string name)
         {
-            throw new NotImplementedException();
+            return new ActorStackState<T>(_stateManager, name);
         }
     }
 }
