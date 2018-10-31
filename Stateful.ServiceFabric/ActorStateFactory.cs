@@ -27,7 +27,7 @@
         /// <inheritdoc />
         public IDictionaryState<TKey, TValue> CreateDictionaryState<TKey, TValue>(string name) where TKey : IEquatable<TKey>, IComparable<TKey>
         {
-            throw new NotImplementedException();
+            return new ActorDictionaryState<TKey, TValue>(_stateManager, name);
         }
 
         /// <inheritdoc />
