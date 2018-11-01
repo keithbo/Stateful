@@ -3,7 +3,7 @@
     using System.Runtime.Serialization;
 
     [DataContract(Namespace = "urn:Stateful/ServiceFabric/2018/10")]
-    public class LinkedNodeManifest
+    public class LinkedManifest
     {
         [DataMember]
         public long Next { get; set; }

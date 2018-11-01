@@ -15,7 +15,7 @@
         /// <inheritdoc />
         public async Task<ConditionalValue<T>> TryPeekAsync(CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return new ConditionalValue<T>();
@@ -41,7 +41,7 @@
         /// <inheritdoc />
         public async Task<ConditionalValue<T>> TryDequeueAsync(CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return new ConditionalValue<T>();

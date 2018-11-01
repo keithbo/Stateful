@@ -30,7 +30,7 @@
         /// <inheritdoc />
         public async Task DeleteStateAsync(CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return;
@@ -51,14 +51,14 @@
         /// <inheritdoc />
         public async Task<long> CountAsync(CancellationToken cancellationToken)
         {
-            var manifest = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifest = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             return manifest.HasValue ? manifest.Value.Count : 0;
         }
 
         /// <inheritdoc />
         public async Task<bool> ContainsAsync(Predicate<T> predicate, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return false;
@@ -84,8 +84,8 @@
         /// <returns><see cref="Task"/></returns>
         protected async Task InsertFirstAsync(IEnumerable<T> values, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
-            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedNodeManifest();
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
+            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedManifest();
 
             var oldFirstIndex = manifest.First;
             string oldFirstKey = null;
@@ -156,8 +156,8 @@
         /// <returns><see cref="Task"/></returns>
         protected async Task InsertLastAsync(IEnumerable<T> values, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
-            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedNodeManifest();
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
+            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedManifest();
 
             string previousKey = null;
             LinkedNode<T> previousNode = null;
@@ -212,8 +212,8 @@
         /// <returns><see cref="Task"/></returns>
         protected async Task InsertAtAsync(long position, IEnumerable<T> values, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
-            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedNodeManifest();
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
+            var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedManifest();
 
             if (position < 0 || position > manifest.Count)
             {
@@ -281,7 +281,7 @@
             await StateManager.SetStateAsync(Name, manifest, cancellationToken);
         }
 
-        protected async Task RemoveCoreAsync(LinkedNodeManifest manifest, string previousKey, LinkedNode<T> previousNode, string removeKey, LinkedNode<T> removeNode, CancellationToken cancellationToken)
+        protected async Task RemoveCoreAsync(LinkedManifest manifest, string previousKey, LinkedNode<T> previousNode, string removeKey, LinkedNode<T> removeNode, CancellationToken cancellationToken)
         {
             if (previousNode != null)
             {
@@ -311,7 +311,7 @@
             await StateManager.SetStateAsync(Name, manifest, cancellationToken);
         }
 
-        protected static long NextIndex(LinkedNodeManifest manifest)
+        protected static long NextIndex(LinkedManifest manifest)
         {
             return manifest.Next++;
         }
@@ -360,7 +360,7 @@
                 var stateManager = _source.StateManager;
                 if (_currentNode == null)
                 {
-                    var manifestResult = await stateManager.TryGetStateAsync<LinkedNodeManifest>(_source.Name, cancellationToken);
+                    var manifestResult = await stateManager.TryGetStateAsync<LinkedManifest>(_source.Name, cancellationToken);
                     if (!manifestResult.HasValue)
                     {
                         return false;

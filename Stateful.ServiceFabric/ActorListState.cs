@@ -30,7 +30,7 @@
         public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken)
         {
             var result = new List<T>();
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return result;
@@ -50,7 +50,7 @@
         /// <inheritdoc />
         public async Task<ConditionalValue<T>> TryGetAsync(long index, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return new ConditionalValue<T>();
@@ -71,7 +71,7 @@
         /// <inheritdoc />
         public async Task<ConditionalValue<T>> TryFindAsync(Predicate<T> match, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return new ConditionalValue<T>();
@@ -98,7 +98,7 @@
         /// <inheritdoc />
         public async Task RemoveAtAsync(long index, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 throw new IndexOutOfRangeException("List is empty");
@@ -117,7 +117,7 @@
         /// <inheritdoc />
         public async Task RemoveAsync(Predicate<T> match, CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<LinkedNodeManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return;
