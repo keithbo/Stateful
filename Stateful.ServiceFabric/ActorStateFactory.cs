@@ -13,6 +13,12 @@
         }
 
         /// <inheritdoc />
+        public ITransaction CreateTransaction()
+        {
+            throw new NotSupportedException("Actors do not support explicit transactions");
+        }
+
+        /// <inheritdoc />
         public IObjectState<T> CreateObjectState<T>(string name)
         {
             return new ActorObjectState<T>(_stateManager, name);

@@ -4,6 +4,8 @@
 
     public interface IStateFactory
     {
+        ITransaction CreateTransaction();
+
         IObjectState<T> CreateObjectState<T>(string name);
 
         IListState<T> CreateListState<T>(string name);
