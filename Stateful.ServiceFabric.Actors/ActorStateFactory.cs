@@ -1,57 +1,24 @@
-﻿namespace Stateful.ServiceFabric
+﻿namespace Stateful.ServiceFabric.Actors
 {
     using System;
+    using System.Collections.Generic;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
-    public class ActorStateFactory : IStateFactory
+    internal class ActorStateFactory : IStateFactory
     {
-        private readonly IActorStateManager _stateManager;
+        private readonly Func<IActorStateManager> _stateManagerFactory;
+        private readonly IDictionary<IStateKey, StateActivator> _activators;
 
-        public ActorStateFactory(IActorStateManager stateManager)
+        public ActorStateFactory(Func<IActorStateManager> stateManagerFactory, IDictionary<IStateKey, StateActivator> activators)
         {
-            _stateManager = stateManager;
+            _stateManagerFactory = stateManagerFactory;
+            _activators = activators;
         }
 
         /// <inheritdoc />
-        public ITransaction CreateTransaction()
+        public IUnit CreateTransaction()
         {
-            throw new NotSupportedException("Actors do not support explicit transactions");
-        }
-
-        /// <inheritdoc />
-        public IObjectState<T> CreateObjectState<T>(string name)
-        {
-            return new ActorObjectState<T>(_stateManager, name);
-        }
-
-        /// <inheritdoc />
-        public IListState<T> CreateListState<T>(string name)
-        {
-            return new ActorListState<T>(_stateManager, name);
-        }
-
-        /// <inheritdoc />
-        public IDictionaryState<TKey, TValue> CreateDictionaryState<TKey, TValue>(string name) where TKey : IEquatable<TKey>, IComparable<TKey>
-        {
-            return new ActorDictionaryState<TKey, TValue>(_stateManager, name);
-        }
-
-        /// <inheritdoc />
-        public IArrayState<T> CreateArrayState<T>(string name, long length)
-        {
-            return new ActorArrayState<T>(_stateManager, name, length);
-        }
-
-        /// <inheritdoc />
-        public IQueueState<T> CreateQueueState<T>(string name)
-        {
-            return new ActorQueueState<T>(_stateManager, name);
-        }
-
-        /// <inheritdoc />
-        public IStackState<T> CreateStackState<T>(string name)
-        {
-            return new ActorStackState<T>(_stateManager, name);
+            return new ActorStateUnit(_stateManagerFactory, (sm, key) => _activators[key].Resolve(sm, key));
         }
     }
 }

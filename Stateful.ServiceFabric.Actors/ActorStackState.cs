@@ -1,14 +1,14 @@
-﻿namespace Stateful.ServiceFabric
+﻿namespace Stateful.ServiceFabric.Actors
 {
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Stateful.ServiceFabric.Internals;
+    using Stateful.ServiceFabric.Actors.Internals;
 
     public class ActorStackState<T> : LinkedCollectionStateBase<T>, IStackState<T>
     {
-        public ActorStackState(IActorStateManager stateManager, string name)
-            : base(stateManager, name)
+        public ActorStackState(IActorStateManager stateManager, IStateKey key)
+            : base(stateManager, key)
         {
         }
 

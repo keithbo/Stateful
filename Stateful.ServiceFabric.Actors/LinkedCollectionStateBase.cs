@@ -1,24 +1,28 @@
-﻿namespace Stateful.ServiceFabric
+﻿namespace Stateful.ServiceFabric.Actors
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Stateful.ServiceFabric.Internals;
+    using Stateful.ServiceFabric.Actors.Internals;
 
     public abstract class LinkedCollectionStateBase<T> : ICollectionState<T>
     {
         protected const string IndexKeyFormat = "{0}:{1:X}";
 
-        protected IActorStateManager StateManager { get; private set; }
+        protected IActorStateManager StateManager { get; }
 
-        public string Name { get; }
+        protected string Name { get; }
 
-        protected LinkedCollectionStateBase(IActorStateManager stateManager, string name)
+        public IStateKey Key { get; }
+
+        protected LinkedCollectionStateBase(IActorStateManager stateManager, IStateKey key)
         {
             StateManager = stateManager;
-            Name = name;
+            Key = key;
+
+            Name = key.Name;
         }
 
         /// <inheritdoc />
@@ -318,7 +322,7 @@
 
         protected string IndexToKey(long index)
         {
-            return string.Format(IndexKeyFormat, Name, index);
+            return string.Format(IndexKeyFormat, Key, index);
         }
 
         protected async Task<(string Key, LinkedNode<T> Node)> FindNodeAsync(long? startIndex, Func<string, LinkedNode<T>, bool> predicate, CancellationToken cancellationToken)
@@ -372,13 +376,13 @@
                         return false;
                     }
 
-                    _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(string.Format(IndexKeyFormat, _source.Name, manifest.First.Value), cancellationToken);
+                    _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(string.Format(IndexKeyFormat, _source.Key, manifest.First.Value), cancellationToken);
                 }
                 else
                 {
                     if (_currentNode.Next.HasValue)
                     {
-                        _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(string.Format(IndexKeyFormat, _source.Name, _currentNode.Next.Value), cancellationToken);
+                        _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(string.Format(IndexKeyFormat, _source.Key, _currentNode.Next.Value), cancellationToken);
                     }
                     else
                     {

@@ -1,4 +1,4 @@
-﻿namespace Stateful.ServiceFabric
+﻿namespace Stateful.ServiceFabric.Actors
 {
     using System.Threading;
     using System.Threading.Tasks;
@@ -7,34 +7,36 @@
     public class ActorObjectState<T> : IObjectState<T>
     {
         private readonly IActorStateManager _stateManager;
+        private readonly string _name;
 
-        public string Name { get; }
+        public IStateKey Key { get; }
 
-        public ActorObjectState(IActorStateManager stateManager, string name)
+        public ActorObjectState(IActorStateManager stateManager, IStateKey key)
         {
             _stateManager = stateManager;
-            Name = name;
+            Key = key;
+            _name = key.Name;
         }
 
         public Task<bool> HasStateAsync(CancellationToken cancellationToken)
         {
-            return _stateManager.ContainsStateAsync(Name, cancellationToken);
+            return _stateManager.ContainsStateAsync(_name, cancellationToken);
         }
 
         public Task DeleteStateAsync(CancellationToken cancellationToken)
         {
-            return _stateManager.TryRemoveStateAsync(Name, cancellationToken);
+            return _stateManager.TryRemoveStateAsync(_name, cancellationToken);
         }
 
         public async Task<ConditionalValue<T>> TryGetAsync(CancellationToken cancellationToken)
         {
-            var value = await _stateManager.TryGetStateAsync<T>(Name, cancellationToken);
+            var value = await _stateManager.TryGetStateAsync<T>(_name, cancellationToken);
             return new ConditionalValue<T>(value.HasValue, value.Value);
         }
 
         public async Task<T> SetAsync(T value, CancellationToken cancellationToken)
         {
-            await _stateManager.SetStateAsync(Name, value, cancellationToken);
+            await _stateManager.SetStateAsync(_name, value, cancellationToken);
             return value;
         }
     }

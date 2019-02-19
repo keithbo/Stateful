@@ -3,8 +3,10 @@
     using System;
     using System.Threading.Tasks;
 
-    public interface ITransaction : IDisposable
+    public interface IUnit : IDisposable
     {
+        TState Get<TState>(IStateKey key) where TState : IState;
+
         void Abort();
 
         Task CommitAsync();

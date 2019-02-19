@@ -5,7 +5,7 @@
 
     public interface IState
     {
-        string Name { get; }
+        IStateKey Key { get; }
 
         Task<bool> HasStateAsync(CancellationToken cancellationToken = default(CancellationToken));
 

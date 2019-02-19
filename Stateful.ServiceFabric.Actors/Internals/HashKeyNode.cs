@@ -1,4 +1,4 @@
-﻿namespace Stateful.ServiceFabric.Internals
+﻿namespace Stateful.ServiceFabric.Actors.Internals
 {
     using System.Runtime.Serialization;
 

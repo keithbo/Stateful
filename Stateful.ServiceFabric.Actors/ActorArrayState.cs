@@ -1,4 +1,4 @@
-﻿namespace Stateful.ServiceFabric
+﻿namespace Stateful.ServiceFabric.Actors
 {
     using System;
     using System.Threading;
@@ -10,13 +10,14 @@
         private const string IndexKeyFormat = "{0}:{1:X}";
 
         private readonly IActorStateManager _stateManager;
+        private readonly string _name;
         private bool _isLengthValidated;
 
-        public string Name { get; }
+        public IStateKey Key { get; }
 
         public long Length { get; }
 
-        public ActorArrayState(IActorStateManager stateManager, string name, long length)
+        public ActorArrayState(IActorStateManager stateManager, IStateKey key, long length)
         {
             if (length < 1L)
             {
@@ -24,30 +25,32 @@
             }
 
             _stateManager = stateManager;
-            Name = name;
+            Key = key;
             Length = length;
+
+            _name = key.Name;
         }
 
         /// <inheritdoc />
         public Task<bool> HasStateAsync(CancellationToken cancellationToken)
         {
-            return _stateManager.ContainsStateAsync(Name, cancellationToken);
+            return _stateManager.ContainsStateAsync(_name, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task DeleteStateAsync(CancellationToken cancellationToken)
         {
-            var actualLength = await _stateManager.TryGetStateAsync<long>(Name, cancellationToken);
+            var actualLength = await _stateManager.TryGetStateAsync<long>(_name, cancellationToken);
             if (!actualLength.HasValue)
             {
                 return;
             }
 
-            await _stateManager.RemoveStateAsync(Name, cancellationToken);
+            await _stateManager.RemoveStateAsync(_name, cancellationToken);
 
             for (var i = 0L; i < actualLength.Value; i++)
             {
-                await _stateManager.TryRemoveStateAsync(string.Format(IndexKeyFormat, Name, i), cancellationToken);
+                await _stateManager.TryRemoveStateAsync(string.Format(IndexKeyFormat, Key, i), cancellationToken);
             }
 
             _isLengthValidated = false;
@@ -68,7 +71,7 @@
             var found = false;
             for (var i = 0L; !found && i < Length; i++)
             {
-                var current = await _stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, Name, i), cancellationToken);
+                var current = await _stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, Key, i), cancellationToken);
                 if (current.HasValue)
                 {
                     found = predicate(current.Value);
@@ -87,7 +90,7 @@
                 throw new IndexOutOfRangeException($"Index {index} must be in range [0, {Length})");
             }
 
-            var value = await _stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, Name, index), cancellationToken);
+            var value = await _stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, Key, index), cancellationToken);
             return value.HasValue ? value.Value : default(T);
         }
 
@@ -100,7 +103,7 @@
                 throw new IndexOutOfRangeException($"Index {index} must be in range [0, {Length})");
             }
 
-            await _stateManager.AddOrUpdateStateAsync(string.Format(IndexKeyFormat, Name, index), value, (key, oldValue) => value, cancellationToken);
+            await _stateManager.AddOrUpdateStateAsync(string.Format(IndexKeyFormat, Key, index), value, (key, oldValue) => value, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -112,7 +115,7 @@
         private async Task ValidateLengthAsync(CancellationToken cancellationToken)
         {
             if (_isLengthValidated) return;
-            var actualLength = await _stateManager.TryGetStateAsync<long>(Name, cancellationToken);
+            var actualLength = await _stateManager.TryGetStateAsync<long>(_name, cancellationToken);
             if (actualLength.HasValue && actualLength.Value != Length)
             {
                 throw new InvalidOperationException("Provided Length for ArrayState does not match Length saved into actual state");
@@ -150,7 +153,7 @@
                     return false;
                 }
 
-                var valueResult = await stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, _array.Name, _index), cancellationToken);
+                var valueResult = await stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, _array.Key, _index), cancellationToken);
                 Current = valueResult.Value;
                 _index++;
                 return true;

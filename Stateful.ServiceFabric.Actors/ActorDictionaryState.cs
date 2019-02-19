@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Stateful.ServiceFabric
+﻿namespace Stateful.ServiceFabric.Actors
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
-    using Stateful.ServiceFabric.Internals;
+    using Stateful.ServiceFabric.Actors.Internals;
 
     public class ActorDictionaryState<TKey, TValue> : IDictionaryState<TKey, TValue> where TKey : IEquatable<TKey>, IComparable<TKey>
     {
@@ -14,26 +13,30 @@ namespace Stateful.ServiceFabric
         protected const string KeyIndexFormat = "{0}:{1:X}:{2:X}";
         protected const string ValueIndexFormat = "{0}:{1:X}:{2:X}:v";
 
+        private readonly string _name;
+
         protected IActorStateManager StateManager { get; }
 
-        public string Name { get; }
+        public IStateKey Key { get; }
 
-        public ActorDictionaryState(IActorStateManager stateManager, string name)
+        public ActorDictionaryState(IActorStateManager stateManager, IStateKey key)
         {
             StateManager = stateManager;
-            Name = name;
+            Key = key;
+
+            _name = key.Name;
         }
 
         /// <inheritdoc />
         public Task<bool> HasStateAsync(CancellationToken cancellationToken)
         {
-            return StateManager.ContainsStateAsync(Name, cancellationToken);
+            return StateManager.ContainsStateAsync(_name, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task DeleteStateAsync(CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return;
@@ -61,20 +64,20 @@ namespace Stateful.ServiceFabric
                 await StateManager.RemoveStateAsync(bucketName, cancellationToken);
             }
 
-            await StateManager.RemoveStateAsync(Name, cancellationToken);
+            await StateManager.RemoveStateAsync(_name, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<long> CountAsync(CancellationToken cancellationToken)
         {
-            var manifest = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
+            var manifest = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
             return manifest.HasValue ? manifest.Value.Count : 0;
         }
 
         /// <inheritdoc />
         public async Task AddAsync(TKey key, TValue value, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
             var manifest = manifestResult.HasValue ? manifestResult.Value : new HashManifest();
 
             var bucketIndex = (long)key.GetHashCode();
@@ -144,13 +147,13 @@ namespace Stateful.ServiceFabric
 
             await StateManager.SetStateAsync(bucketName, bucket, cancellationToken);
 
-            await StateManager.SetStateAsync(Name, manifest, cancellationToken);
+            await StateManager.SetStateAsync(_name, manifest, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<bool> ContainsAsync(Predicate<KeyValuePair<TKey, TValue>> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return false;
@@ -240,7 +243,7 @@ namespace Stateful.ServiceFabric
         /// <inheritdoc />
         public async Task<bool> RemoveAsync(TKey key, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return false;
@@ -298,7 +301,7 @@ namespace Stateful.ServiceFabric
             }
 
             manifest.Count--;
-            await StateManager.SetStateAsync(Name, manifest, cancellationToken);
+            await StateManager.SetStateAsync(_name, manifest, cancellationToken);
 
             return true;
         }
@@ -386,17 +389,17 @@ namespace Stateful.ServiceFabric
 
         protected string IndexToBucket(long bucket)
         {
-            return string.Format(BucketIndexFormat, Name, bucket);
+            return string.Format(BucketIndexFormat, Key, bucket);
         }
 
         protected string IndexToKey(long bucket, long index)
         {
-            return string.Format(KeyIndexFormat, Name, bucket, index);
+            return string.Format(KeyIndexFormat, Key, bucket, index);
         }
 
         protected string IndexToValue(long bucket, long index)
         {
-            return string.Format(ValueIndexFormat, Name, bucket, index);
+            return string.Format(ValueIndexFormat, Key, bucket, index);
         }
 
         private class AsyncEnumerator : IAsyncEnumerator<KeyValuePair<TKey, TValue>>
@@ -428,7 +431,7 @@ namespace Stateful.ServiceFabric
                 {
                     if (!_nextBucketIndex.HasValue)
                     {
-                        var manifestResult = await stateManager.TryGetStateAsync<HashManifest>(_source.Name, cancellationToken);
+                        var manifestResult = await stateManager.TryGetStateAsync<HashManifest>(_source._name, cancellationToken);
                         if (!manifestResult.HasValue)
                         {
                             return false;
