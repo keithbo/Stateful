@@ -26,8 +26,7 @@
             var configurator = new ActorStateConfigurator(configuration);
             configure(configurator);
 
-            _configuration.AddStateActivator(configuration.Build()
-            );
+            _configuration.AddStateActivator(configuration.Build());
         }
 
         /// <inheritdoc />
@@ -37,8 +36,7 @@
             var configurator = new ActorStateConfigurator(configuration);
             configure(configurator);
 
-            _configuration.AddStateActivator(configuration.Build()
-            );
+            _configuration.AddStateActivator(configuration.Build());
         }
 
         /// <inheritdoc />
@@ -48,8 +46,7 @@
             var configurator = new ActorStateConfigurator(configuration);
             configure(configurator);
 
-            _configuration.AddStateActivator(configuration.Build()
-            );
+            _configuration.AddStateActivator(configuration.Build());
         }
 
         /// <inheritdoc />
@@ -59,8 +56,7 @@
             var configurator = new ArrayActorStateConfigurator(configuration);
             configure(configurator);
 
-            _configuration.AddStateActivator(configuration.Build()
-            );
+            _configuration.AddStateActivator(configuration.Build());
         }
 
         /// <inheritdoc />
@@ -70,8 +66,7 @@
             var configurator = new ActorStateConfigurator(configuration);
             configure(configurator);
 
-            _configuration.AddStateActivator(configuration.Build()
-            );
+            _configuration.AddStateActivator(configuration.Build());
         }
 
         /// <inheritdoc />
@@ -81,8 +76,7 @@
             var configurator = new ActorStateConfigurator(configuration);
             configure(configurator);
 
-            _configuration.AddStateActivator(configuration.Build()
-            );
+            _configuration.AddStateActivator(configuration.Build());
         }
     }
 }

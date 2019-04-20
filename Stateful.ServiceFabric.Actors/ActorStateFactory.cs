@@ -13,7 +13,7 @@
 
         public ActorStateFactory(IActorStateManager stateManager, IEnumerable<IActorStateActivator> activators)
         {
-            _stateManager = stateManager;
+            _stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             _activators = activators.ToDictionary(kvp => kvp.Key);
         }
 
