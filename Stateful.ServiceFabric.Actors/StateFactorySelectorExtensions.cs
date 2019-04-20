@@ -6,10 +6,10 @@
 
     public static class StateFactorySelectorExtensions
     {
-        public static IStateFactory CreateUsingServiceFabricActors(this IStateFactorySelector selector, Action<IServiceFabricActorStateFactoryConfigurator> configure)
+        public static IStateFactory CreateUsingServiceFabricActors(this IStateFactorySelector selector, Action<IActorStateFactoryConfigurator> configure)
         {
-            var configuration = new ServiceFabricActorStateConfiguration();
-            var configurator = new ServiceFabricActorStateFactoryConfigurator(configuration);
+            var configuration = new ActorStateFactoryConfiguration();
+            var configurator = new ActorStateFactoryConfigurator(configuration);
 
             configure(configurator);
 

@@ -5,7 +5,7 @@
 
     public static class StateFactoryConfiguratorExtensions
     {
-        public static void AddObject<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
+        public static void AddObject<TValue>(this IActorStateFactoryConfigurator configurator, string name)
         {
             configurator.AddObject<TValue>(config =>
             {
@@ -13,7 +13,7 @@
             });
         }
 
-        public static void AddList<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
+        public static void AddList<TValue>(this IActorStateFactoryConfigurator configurator, string name)
         {
             configurator.AddList<TValue>(config =>
             {
@@ -21,7 +21,7 @@
             });
         }
 
-        public static void AddDictionary<TKey, TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
+        public static void AddDictionary<TKey, TValue>(this IActorStateFactoryConfigurator configurator, string name)
             where TKey : IEquatable<TKey>, IComparable<TKey>
         {
             configurator.AddDictionary<TKey, TValue>(config =>
@@ -30,7 +30,7 @@
             });
         }
 
-        public static void AddArray<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name, long length)
+        public static void AddArray<TValue>(this IActorStateFactoryConfigurator configurator, string name, long length)
         {
             configurator.AddArray<TValue>(config =>
             {
@@ -39,7 +39,7 @@
             });
         }
 
-        public static void AddQueue<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
+        public static void AddQueue<TValue>(this IActorStateFactoryConfigurator configurator, string name)
         {
             configurator.AddQueue<TValue>(config =>
             {
@@ -47,7 +47,7 @@
             });
         }
 
-        public static void AddStack<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
+        public static void AddStack<TValue>(this IActorStateFactoryConfigurator configurator, string name)
         {
             configurator.AddStack<TValue>(config =>
             {

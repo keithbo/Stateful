@@ -4,15 +4,16 @@
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Stateful.Configuration;
 
-    public class ServiceFabricActorStateFactoryConfigurator : IServiceFabricActorStateFactoryConfigurator
+    public class ActorStateFactoryConfigurator : IActorStateFactoryConfigurator
     {
-        private readonly IServiceFabricActorStateConfiguration _configuration;
+        private readonly IActorStateFactoryConfiguration _configuration;
 
-        public ServiceFabricActorStateFactoryConfigurator(IServiceFabricActorStateConfiguration configuration)
+        public ActorStateFactoryConfigurator(IActorStateFactoryConfiguration configuration)
         {
             _configuration = configuration;
         }
 
+        /// <inheritdoc />
         public IActorStateManager StateManager
         {
             set => _configuration.StateManager = value;

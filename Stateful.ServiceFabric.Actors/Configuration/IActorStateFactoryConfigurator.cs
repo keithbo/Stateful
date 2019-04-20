@@ -4,7 +4,7 @@
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Stateful.Configuration;
 
-    public interface IServiceFabricActorStateFactoryConfigurator
+    public interface IActorStateFactoryConfigurator
     {
         IActorStateManager StateManager { set; }
 

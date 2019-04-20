@@ -1,11 +1,9 @@
 ﻿namespace Stateful.ServiceFabric.Actors.Configuration
 {
-    using System;
     using System.Collections.Generic;
-    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
-    public class ServiceFabricActorStateConfiguration : IServiceFabricActorStateConfiguration
+    public class ActorStateFactoryConfiguration : IActorStateFactoryConfiguration
     {
         public IActorStateManager StateManager { get; set; }
 
