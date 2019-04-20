@@ -1,13 +1,13 @@
-﻿namespace Stateful.ServiceFabric.Actors
+﻿namespace Stateful.ServiceFabric.Actors.Configuration
 {
     using System;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
-    public class StateActivator
+    public class ActorStateActivator : IActorStateActivator
     {
         private readonly Func<IActorStateManager, IStateKey, IState> _factoryMethod;
 
-        public StateActivator(Func<IActorStateManager, IStateKey, IState> factoryMethod)
+        public ActorStateActivator(Func<IActorStateManager, IStateKey, IState> factoryMethod)
         {
             _factoryMethod = factoryMethod;
         }
