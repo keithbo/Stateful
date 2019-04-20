@@ -7,33 +7,52 @@
     {
         public static void AddObject<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
         {
-            configurator.AddObject<TValue>(new StateKey(name));
+            configurator.AddObject<TValue>(config =>
+            {
+                config.Key = new StateKey(name);
+            });
         }
 
         public static void AddList<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
         {
-            configurator.AddList<TValue>(new StateKey(name));
+            configurator.AddList<TValue>(config =>
+            {
+                config.Key = new StateKey(name);
+            });
         }
 
         public static void AddDictionary<TKey, TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
             where TKey : IEquatable<TKey>, IComparable<TKey>
         {
-            configurator.AddDictionary<TKey, TValue>(new StateKey(name));
+            configurator.AddDictionary<TKey, TValue>(config =>
+            {
+                config.Key = new StateKey(name);
+            });
         }
 
         public static void AddArray<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name, long length)
         {
-            configurator.AddArray<TValue>(new StateKey(name), length);
+            configurator.AddArray<TValue>(config =>
+            {
+                config.Key = new StateKey(name);
+                config.Length = length;
+            });
         }
 
         public static void AddQueue<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
         {
-            configurator.AddQueue<TValue>(new StateKey(name));
+            configurator.AddQueue<TValue>(config =>
+            {
+                config.Key = new StateKey(name);
+            });
         }
 
         public static void AddStack<TValue>(this IServiceFabricActorStateFactoryConfigurator configurator, string name)
         {
-            configurator.AddStack<TValue>(new StateKey(name));
+            configurator.AddStack<TValue>(config =>
+            {
+                config.Key = new StateKey(name);
+            });
         }
     }
 }

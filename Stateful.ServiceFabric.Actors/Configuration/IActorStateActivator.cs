@@ -4,6 +4,8 @@
 
     public interface IActorStateActivator
     {
-        IState Resolve(IActorStateManager stateManager, IStateKey key);
+        IStateKey Key { get; }
+
+        IState Resolve(IActorStateManager stateManager);
     }
 }

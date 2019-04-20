@@ -5,16 +5,19 @@
 
     public class ActorStateActivator : IActorStateActivator
     {
-        private readonly Func<IActorStateManager, IStateKey, IState> _factoryMethod;
+        private readonly Func<IActorStateManager, IState> _factoryMethod;
 
-        public ActorStateActivator(Func<IActorStateManager, IStateKey, IState> factoryMethod)
+        public IStateKey Key { get; }
+
+        public ActorStateActivator(IStateKey key, Func<IActorStateManager, IState> factoryMethod)
         {
+            Key = key;
             _factoryMethod = factoryMethod;
         }
 
-        public IState Resolve(IActorStateManager stateManager, IStateKey key)
+        public IState Resolve(IActorStateManager stateManager)
         {
-            return _factoryMethod(stateManager, key);
+            return _factoryMethod(stateManager);
         }
     }
 }

@@ -2,6 +2,7 @@
 {
     using System;
     using Microsoft.ServiceFabric.Actors.Runtime;
+    using Stateful.Configuration;
 
     public class ServiceFabricActorStateFactoryConfigurator : IServiceFabricActorStateFactoryConfigurator
     {
@@ -18,51 +19,69 @@
         }
 
         /// <inheritdoc />
-        public void AddObject<TValue>(IStateKey key)
+        public void AddObject<TValue>(Action<IStateConfigurator> configure)
         {
-            _configuration.AddStateActivator(
-                key,
-                new ActorStateActivator((stateManager, stateKey) => new ActorObjectState<TValue>(stateManager, stateKey)));
+            var configuration = new ObjectActivatorConfiguration<TValue>();
+            var configurator = new ActorStateConfigurator(configuration);
+            configure(configurator);
+
+            _configuration.AddStateActivator(configuration.Build()
+            );
         }
 
         /// <inheritdoc />
-        public void AddList<TValue>(IStateKey key)
+        public void AddList<TValue>(Action<IStateConfigurator> configure)
         {
-            _configuration.AddStateActivator(
-                key,
-                new ActorStateActivator((stateManager, stateKey) => new ActorListState<TValue>(stateManager, stateKey)));
+            var configuration = new ListActivatorConfiguration<TValue>();
+            var configurator = new ActorStateConfigurator(configuration);
+            configure(configurator);
+
+            _configuration.AddStateActivator(configuration.Build()
+            );
         }
 
         /// <inheritdoc />
-        public void AddDictionary<TKey, TValue>(IStateKey key) where TKey : IEquatable<TKey>, IComparable<TKey>
+        public void AddDictionary<TKey, TValue>(Action<IStateConfigurator> configure) where TKey : IEquatable<TKey>, IComparable<TKey>
         {
-            _configuration.AddStateActivator(
-                key,
-                new ActorStateActivator((stateManager, stateKey) => new ActorDictionaryState<TKey, TValue>(stateManager, stateKey)));
+            var configuration = new DictionaryActivatorConfiguration<TKey, TValue>();
+            var configurator = new ActorStateConfigurator(configuration);
+            configure(configurator);
+
+            _configuration.AddStateActivator(configuration.Build()
+            );
         }
 
         /// <inheritdoc />
-        public void AddArray<TValue>(IStateKey key, long length)
+        public void AddArray<TValue>(Action<IArrayStateConfigurator> configure)
         {
-            _configuration.AddStateActivator(
-                key,
-                new ActorStateActivator((stateManager, stateKey) => new ActorArrayState<TValue>(stateManager, stateKey, length)));
+            var configuration = new ArrayActivatorConfiguration<TValue>();
+            var configurator = new ArrayActorStateConfigurator(configuration);
+            configure(configurator);
+
+            _configuration.AddStateActivator(configuration.Build()
+            );
         }
 
         /// <inheritdoc />
-        public void AddQueue<TValue>(IStateKey key)
+        public void AddQueue<TValue>(Action<IStateConfigurator> configure)
         {
-            _configuration.AddStateActivator(
-                key,
-                new ActorStateActivator((stateManager, stateKey) => new ActorQueueState<TValue>(stateManager, stateKey)));
+            var configuration = new QueueActivatorConfiguration<TValue>();
+            var configurator = new ActorStateConfigurator(configuration);
+            configure(configurator);
+
+            _configuration.AddStateActivator(configuration.Build()
+            );
         }
 
         /// <inheritdoc />
-        public void AddStack<TValue>(IStateKey key)
+        public void AddStack<TValue>(Action<IStateConfigurator> configure)
         {
-            _configuration.AddStateActivator(
-                key,
-                new ActorStateActivator((stateManager, stateKey) => new ActorStackState<TValue>(stateManager, stateKey)));
+            var configuration = new StackActivatorConfiguration<TValue>();
+            var configurator = new ActorStateConfigurator(configuration);
+            configure(configurator);
+
+            _configuration.AddStateActivator(configuration.Build()
+            );
         }
     }
 }

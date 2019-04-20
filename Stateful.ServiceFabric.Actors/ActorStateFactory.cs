@@ -2,24 +2,25 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Stateful.ServiceFabric.Actors.Configuration;
 
     internal class ActorStateFactory : IStateFactory
     {
-        private readonly Func<IActorStateManager> _stateManagerFactory;
+        private readonly IActorStateManager _stateManager;
         private readonly IDictionary<IStateKey, IActorStateActivator> _activators;
 
-        public ActorStateFactory(Func<IActorStateManager> stateManagerFactory, IDictionary<IStateKey, IActorStateActivator> activators)
+        public ActorStateFactory(IActorStateManager stateManager, IEnumerable<IActorStateActivator> activators)
         {
-            _stateManagerFactory = stateManagerFactory;
-            _activators = activators;
+            _stateManager = stateManager;
+            _activators = activators.ToDictionary(kvp => kvp.Key);
         }
 
         /// <inheritdoc />
         public IUnit CreateTransaction()
         {
-            return new ActorStateUnit(_stateManagerFactory, (sm, key) => _activators[key].Resolve(sm, key));
+            return new ActorStateUnit(_stateManager, (sm, key) => _activators[key].Resolve(sm));
         }
     }
 }

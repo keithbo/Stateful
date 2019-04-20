@@ -9,22 +9,18 @@
     {
         public IActorStateManager StateManager { get; set; }
 
-        private readonly IDictionary<IStateKey, IActorStateActivator> _activations = new Dictionary<IStateKey, IActorStateActivator>();
+        private readonly List<IActorStateActivator> _activations = new List<IActorStateActivator>();
 
-        public ServiceFabricActorStateConfiguration()
+        public void AddStateActivator(IActorStateActivator activator)
         {
-        }
-
-        public void AddStateActivator(IStateKey key, IActorStateActivator activator)
-        {
-            _activations.Add(key, activator);
+            _activations.Add(activator);
         }
 
 
         /// <inheritdoc />
         public IStateFactory Build()
         {
-            return new ActorStateFactory(() => StateManager, _activations.ToDictionary(kvp => kvp.Key, kvp => kvp.Value));
+            return new ActorStateFactory(StateManager, _activations);
         }
     }
 }

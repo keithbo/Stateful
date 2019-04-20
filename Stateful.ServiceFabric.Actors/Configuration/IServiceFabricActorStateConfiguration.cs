@@ -6,6 +6,6 @@
     {
         IActorStateManager StateManager { get; set; }
 
-        void AddStateActivator(IStateKey key, IActorStateActivator activator);
+        void AddStateActivator(IActorStateActivator activator);
     }
 }

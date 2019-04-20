@@ -7,7 +7,7 @@
 
     internal class ActorStateUnit : IUnit
     {
-        private Lazy<IActorStateManager> _stateManager;
+        private IActorStateManager _stateManager;
 
         private readonly Func<IActorStateManager, IStateKey, IState> _stateFactory;
 
@@ -15,9 +15,9 @@
 
         private bool _isDisposed;
 
-        public ActorStateUnit(Func<IActorStateManager> stateManagerFactory, Func<IActorStateManager, IStateKey, IState> stateFactory)
+        public ActorStateUnit(IActorStateManager stateManager, Func<IActorStateManager, IStateKey, IState> stateFactory)
         {
-            _stateManager = new Lazy<IActorStateManager>(stateManagerFactory ?? throw new ArgumentNullException(nameof(stateManagerFactory)));
+            _stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
             _stateFactory = stateFactory ?? throw new ArgumentNullException(nameof(stateFactory));
         }
 
@@ -38,7 +38,7 @@
         public TState Get<TState>(IStateKey key) where TState : IState
         {
             CheckDisposed();
-            return (TState)_stateCache.GetOrAdd(key, k => _stateFactory(_stateManager.Value, k));
+            return (TState)_stateCache.GetOrAdd(key, k => _stateFactory(_stateManager, k));
         }
 
         /// <inheritdoc />
