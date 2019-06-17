@@ -1,10 +1,9 @@
-namespace Stateful.Tests
+namespace Stateful.ServiceFabric.Actors
 {
     using System;
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Moq;
-    using Stateful.ServiceFabric.Actors;
     using Xunit;
 
     public class ActorStateUnitTests
@@ -42,6 +41,19 @@ namespace Stateful.Tests
             Assert.Same(stateMock.Object, resultState);
 
             factoryMock.Verify();
+        }
+
+        [Fact]
+        public async Task CommitTest()
+        {
+            var stateManagerMock = new Mock<IActorStateManager>();
+            var factoryMock = new Mock<Func<IActorStateManager, IStateKey, IState>>();
+
+            var unit = new ActorStateUnit(stateManagerMock.Object, factoryMock.Object);
+
+            await unit.CommitAsync();
+
+            Assert.Throws<ObjectDisposedException>(() => unit.Get<IListState<string>>(new StateKey("Test")));
         }
     }
 }

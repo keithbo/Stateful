@@ -27,13 +27,13 @@
         }
 
         /// <inheritdoc />
-        public async Task<List<T>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<ConditionalValue<IList<T>>> TryGetAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var result = new List<T>();
             var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
-                return result;
+                return new ConditionalValue<IList<T>>();
             }
 
             var manifest = manifestResult.Value;
@@ -44,7 +44,7 @@
                 result.Add(currentNode.Value);
             }
 
-            return result;
+            return new ConditionalValue<IList<T>>(result);
         }
 
         /// <inheritdoc />

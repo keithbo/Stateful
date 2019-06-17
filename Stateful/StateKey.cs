@@ -2,8 +2,10 @@
 {
     using System;
 
+    /// <inheritdoc />
     public sealed class StateKey : IStateKey
     {
+        /// <inheritdoc />
         public string Name { get; }
 
         public StateKey(string name)

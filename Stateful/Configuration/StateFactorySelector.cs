@@ -1,6 +1,7 @@
 ﻿namespace Stateful.Configuration
 {
-    internal class StateFactorySelector : IStateFactorySelector
+    /// <inheritdoc />
+    internal sealed class StateFactorySelector : IStateFactorySelector
     {
         
     }

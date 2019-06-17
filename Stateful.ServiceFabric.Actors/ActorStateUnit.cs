@@ -52,6 +52,7 @@
         public Task CommitAsync()
         {
             CheckDisposed();
+            Dispose();
             return Task.CompletedTask;
         }
 
