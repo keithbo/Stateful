@@ -13,16 +13,14 @@
 
         protected IActorStateManager StateManager { get; }
 
-        protected string Name { get; }
+        protected string Name => Key.ToString();
 
         public IStateKey Key { get; }
 
         protected LinkedCollectionStateBase(IActorStateManager stateManager, IStateKey key)
         {
-            StateManager = stateManager;
-            Key = key;
-
-            Name = key.Name;
+            StateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
+            Key = key ?? throw new ArgumentNullException(nameof(key));
         }
 
         /// <inheritdoc />
@@ -42,7 +40,7 @@
 
             var manifest = manifestResult.Value;
             LinkedNode<T> currentNode;
-            for (var internalIndex = manifest.First; internalIndex.HasValue; internalIndex = currentNode.Next)
+            for (var internalIndex = manifest.First; internalIndex.HasValue; internalIndex = currentNode?.Next)
             {
                 var key = IndexToKey(internalIndex.Value);
                 currentNode = await StateManager.GetStateAsync<LinkedNode<T>>(key, cancellationToken);
@@ -322,7 +320,7 @@
 
         protected string IndexToKey(long index)
         {
-            return string.Format(IndexKeyFormat, Key, index);
+            return string.Format(IndexKeyFormat, Name, index);
         }
 
         protected async Task<(string Key, LinkedNode<T> Node)> FindNodeAsync(long? startIndex, Func<string, LinkedNode<T>, bool> predicate, CancellationToken cancellationToken)
@@ -337,7 +335,7 @@
                 found = predicate(currentKey, current);
             }
 
-            return (Key: currentKey, Node: current);
+            return (Key: currentKey, Node: found ? current : null);
         }
 
         private class AsyncEnumerator : IAsyncEnumerator<T>
@@ -376,13 +374,13 @@
                         return false;
                     }
 
-                    _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(string.Format(IndexKeyFormat, _source.Key, manifest.First.Value), cancellationToken);
+                    _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(_source.IndexToKey(manifest.First.Value), cancellationToken);
                 }
                 else
                 {
                     if (_currentNode.Next.HasValue)
                     {
-                        _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(string.Format(IndexKeyFormat, _source.Key, _currentNode.Next.Value), cancellationToken);
+                        _currentNode = await stateManager.GetStateAsync<LinkedNode<T>>(_source.IndexToKey(_currentNode.Next.Value), cancellationToken);
                     }
                     else
                     {

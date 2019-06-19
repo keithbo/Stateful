@@ -15,7 +15,7 @@
         {
             _stateManager = stateManager;
             Key = key;
-            _name = key.Name;
+            _name = key.ToString();
         }
 
         public Task<bool> HasStateAsync(CancellationToken cancellationToken)

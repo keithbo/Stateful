@@ -10,8 +10,9 @@
         private const string IndexKeyFormat = "{0}:{1:X}";
 
         private readonly IActorStateManager _stateManager;
-        private readonly string _name;
         private bool _isLengthValidated;
+
+        protected string Name => Key.ToString();
 
         public IStateKey Key { get; }
 
@@ -24,33 +25,31 @@
                 throw new ArgumentException("Length must be non-zero", nameof(length));
             }
 
-            _stateManager = stateManager;
-            Key = key;
+            _stateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
+            Key = key ?? throw new ArgumentNullException(nameof(key));
             Length = length;
-
-            _name = key.Name;
         }
 
         /// <inheritdoc />
         public Task<bool> HasStateAsync(CancellationToken cancellationToken)
         {
-            return _stateManager.ContainsStateAsync(_name, cancellationToken);
+            return _stateManager.ContainsStateAsync(Name, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task DeleteStateAsync(CancellationToken cancellationToken)
         {
-            var actualLength = await _stateManager.TryGetStateAsync<long>(_name, cancellationToken);
+            var actualLength = await _stateManager.TryGetStateAsync<long>(Name, cancellationToken);
             if (!actualLength.HasValue)
             {
                 return;
             }
 
-            await _stateManager.RemoveStateAsync(_name, cancellationToken);
+            await _stateManager.RemoveStateAsync(Name, cancellationToken);
 
             for (var i = 0L; i < actualLength.Value; i++)
             {
-                await _stateManager.TryRemoveStateAsync(string.Format(IndexKeyFormat, Key, i), cancellationToken);
+                await _stateManager.TryRemoveStateAsync(IndexToKey(i), cancellationToken);
             }
 
             _isLengthValidated = false;
@@ -71,7 +70,7 @@
             var found = false;
             for (var i = 0L; !found && i < Length; i++)
             {
-                var current = await _stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, Key, i), cancellationToken);
+                var current = await _stateManager.TryGetStateAsync<T>(IndexToKey(i), cancellationToken);
                 if (current.HasValue)
                 {
                     found = predicate(current.Value);
@@ -90,7 +89,7 @@
                 throw new IndexOutOfRangeException($"Index {index} must be in range [0, {Length})");
             }
 
-            var value = await _stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, Key, index), cancellationToken);
+            var value = await _stateManager.TryGetStateAsync<T>(IndexToKey(index), cancellationToken);
             return value.HasValue ? value.Value : default(T);
         }
 
@@ -103,7 +102,7 @@
                 throw new IndexOutOfRangeException($"Index {index} must be in range [0, {Length})");
             }
 
-            await _stateManager.AddOrUpdateStateAsync(string.Format(IndexKeyFormat, Key, index), value, (key, oldValue) => value, cancellationToken);
+            await _stateManager.AddOrUpdateStateAsync(IndexToKey(index), value, (key, oldValue) => value, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -112,10 +111,15 @@
             return new AsyncEnumerator(this);
         }
 
+        protected string IndexToKey(long index)
+        {
+            return string.Format(IndexKeyFormat, Name, index);
+        }
+
         private async Task ValidateLengthAsync(CancellationToken cancellationToken)
         {
             if (_isLengthValidated) return;
-            var actualLength = await _stateManager.TryGetStateAsync<long>(_name, cancellationToken);
+            var actualLength = await _stateManager.TryGetStateAsync<long>(Name, cancellationToken);
             if (actualLength.HasValue && actualLength.Value != Length)
             {
                 throw new InvalidOperationException("Provided Length for ArrayState does not match Length saved into actual state");
@@ -124,7 +128,7 @@
             _isLengthValidated = true;
         }
 
-        public class AsyncEnumerator : IAsyncEnumerator<T>
+        private class AsyncEnumerator : IAsyncEnumerator<T>
         {
             private readonly ActorArrayState<T> _array;
             private long _index;
@@ -153,7 +157,7 @@
                     return false;
                 }
 
-                var valueResult = await stateManager.TryGetStateAsync<T>(string.Format(IndexKeyFormat, _array.Key, _index), cancellationToken);
+                var valueResult = await stateManager.TryGetStateAsync<T>(_array.IndexToKey(_index), cancellationToken);
                 Current = valueResult.Value;
                 _index++;
                 return true;

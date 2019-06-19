@@ -13,7 +13,7 @@
         protected const string KeyIndexFormat = "{0}:{1:X}:{2:X}";
         protected const string ValueIndexFormat = "{0}:{1:X}:{2:X}:v";
 
-        private readonly string _name;
+        protected string Name => Key.ToString();
 
         protected IActorStateManager StateManager { get; }
 
@@ -21,22 +21,20 @@
 
         public ActorDictionaryState(IActorStateManager stateManager, IStateKey key)
         {
-            StateManager = stateManager;
-            Key = key;
-
-            _name = key.Name;
+            StateManager = stateManager ?? throw new ArgumentNullException(nameof(stateManager));
+            Key = key ?? throw new ArgumentNullException(nameof(key));
         }
 
         /// <inheritdoc />
         public Task<bool> HasStateAsync(CancellationToken cancellationToken)
         {
-            return StateManager.ContainsStateAsync(_name, cancellationToken);
+            return StateManager.ContainsStateAsync(Name, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task DeleteStateAsync(CancellationToken cancellationToken)
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return;
@@ -64,20 +62,20 @@
                 await StateManager.RemoveStateAsync(bucketName, cancellationToken);
             }
 
-            await StateManager.RemoveStateAsync(_name, cancellationToken);
+            await StateManager.RemoveStateAsync(Name, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<long> CountAsync(CancellationToken cancellationToken)
         {
-            var manifest = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
+            var manifest = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
             return manifest.HasValue ? manifest.Value.Count : 0;
         }
 
         /// <inheritdoc />
         public async Task AddAsync(TKey key, TValue value, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
             var manifest = manifestResult.HasValue ? manifestResult.Value : new HashManifest();
 
             var bucketIndex = (long)key.GetHashCode();
@@ -147,13 +145,13 @@
 
             await StateManager.SetStateAsync(bucketName, bucket, cancellationToken);
 
-            await StateManager.SetStateAsync(_name, manifest, cancellationToken);
+            await StateManager.SetStateAsync(Name, manifest, cancellationToken);
         }
 
         /// <inheritdoc />
         public async Task<bool> ContainsAsync(Predicate<KeyValuePair<TKey, TValue>> predicate, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return false;
@@ -243,7 +241,7 @@
         /// <inheritdoc />
         public async Task<bool> RemoveAsync(TKey key, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(_name, cancellationToken);
+            var manifestResult = await StateManager.TryGetStateAsync<HashManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
                 return false;
@@ -301,7 +299,7 @@
             }
 
             manifest.Count--;
-            await StateManager.SetStateAsync(_name, manifest, cancellationToken);
+            await StateManager.SetStateAsync(Name, manifest, cancellationToken);
 
             return true;
         }
@@ -389,17 +387,17 @@
 
         protected string IndexToBucket(long bucket)
         {
-            return string.Format(BucketIndexFormat, Key, bucket);
+            return string.Format(BucketIndexFormat, Name, bucket);
         }
 
         protected string IndexToKey(long bucket, long index)
         {
-            return string.Format(KeyIndexFormat, Key, bucket, index);
+            return string.Format(KeyIndexFormat, Name, bucket, index);
         }
 
         protected string IndexToValue(long bucket, long index)
         {
-            return string.Format(ValueIndexFormat, Key, bucket, index);
+            return string.Format(ValueIndexFormat, Name, bucket, index);
         }
 
         private class AsyncEnumerator : IAsyncEnumerator<KeyValuePair<TKey, TValue>>
@@ -431,7 +429,7 @@
                 {
                     if (!_nextBucketIndex.HasValue)
                     {
-                        var manifestResult = await stateManager.TryGetStateAsync<HashManifest>(_source._name, cancellationToken);
+                        var manifestResult = await stateManager.TryGetStateAsync<HashManifest>(_source.Name, cancellationToken);
                         if (!manifestResult.HasValue)
                         {
                             return false;
