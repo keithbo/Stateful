@@ -161,11 +161,12 @@
             var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             var manifest = manifestResult.HasValue ? manifestResult.Value : new LinkedManifest();
 
+            var previousIndex = manifest.Last;
             string previousKey = null;
             LinkedNode<T> previousNode = null;
-            if (manifest.Last.HasValue)
+            if (previousIndex.HasValue)
             {
-                previousKey = IndexToKey(manifest.Last.Value);
+                previousKey = IndexToKey(previousIndex.Value);
                 previousNode = await StateManager.GetStateAsync<LinkedNode<T>>(previousKey, cancellationToken);
             }
 
@@ -176,7 +177,7 @@
                 var newNode = new LinkedNode<T>
                 {
                     Value = value,
-                    Previous = previousNode?.Next
+                    Previous = previousIndex
                 };
 
                 if (previousNode != null)
@@ -193,6 +194,7 @@
                     manifest.First = newIndex;
                 }
 
+                previousIndex = manifest.Last;
                 previousKey = newKey;
                 previousNode = newNode;
             }
@@ -244,8 +246,8 @@
                 var newNode = new LinkedNode<T>
                 {
                     Value = value,
-                    Next = previousNode?.Next ?? manifest.First,
-                    Previous = insertBeforeNode?.Previous ?? manifest.Last
+                    Next = previousNode != null ? previousNode.Next : manifest.First,
+                    Previous = insertBeforeNode != null ? insertBeforeNode.Previous : manifest.Last
                 };
 
                 await StateManager.AddStateAsync(newKey, newNode, cancellationToken);
