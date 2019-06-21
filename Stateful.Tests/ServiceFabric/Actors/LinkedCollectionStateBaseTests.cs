@@ -59,9 +59,9 @@
                 Last = 0,
                 Next = 1
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
-                Value = new TestLinkedState()
+                Value = new TestState()
             }, cts.Token);
 
             await state.DeleteStateAsync(cts.Token);
@@ -109,9 +109,9 @@
 
             var state = new TestLinkedCollectionState(stateManager, keyMock.Object);
 
-            var searchMock = new Mock<Predicate<TestLinkedState>>();
-            searchMock.Setup(x => x(It.IsAny<TestLinkedState>()))
-                .Returns<TestLinkedState>(s => s.Value == "A");
+            var searchMock = new Mock<Predicate<TestState>>();
+            searchMock.Setup(x => x(It.IsAny<TestState>()))
+                .Returns<TestState>(s => s.Value == "A");
 
             Assert.False(await state.ContainsAsync(searchMock.Object, cts.Token));
 
@@ -129,9 +129,9 @@
                 Last = 0,
                 Next = 1
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "B"
                 }
@@ -145,18 +145,18 @@
                 Last = 1,
                 Next = 2
             }, cts.Token);
-            await stateManager.SetStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.SetStateAsync("TestName:0", new LinkedNode<TestState>
             {
                 Next = 1,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "B"
                 }
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestState>
             {
                 Previous = 0,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "A"
                 }
@@ -180,9 +180,9 @@
                 Last = 0,
                 Next = 1
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "A"
                 }
@@ -190,13 +190,13 @@
 
             var state = new TestLinkedCollectionState(stateManager, keyMock.Object);
 
-            var values = new List<TestLinkedState>
+            var values = new List<TestState>
             {
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I1"
                 },
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I2"
                 },
@@ -209,19 +209,19 @@
             Assert.Equal(1, manifest.First);
             Assert.Equal(0, manifest.Last);
             Assert.Equal(3, manifest.Next);
-            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:1", cts.Token);
+            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:1", cts.Token);
             Assert.True(value1.HasValue);
             Assert.Null(value1.Value.Previous);
             Assert.Equal(2, value1.Value.Next);
             Assert.NotNull(value1.Value.Value);
             Assert.Equal("I1", value1.Value.Value.Value);
-            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:2", cts.Token);
+            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:2", cts.Token);
             Assert.True(value2.HasValue);
             Assert.Equal(1, value2.Value.Previous);
             Assert.Equal(0, value2.Value.Next);
             Assert.NotNull(value2.Value.Value);
             Assert.Equal("I2", value2.Value.Value.Value);
-            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:0", cts.Token);
+            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:0", cts.Token);
             Assert.True(value0.HasValue);
             Assert.Equal(2, value0.Value.Previous);
             Assert.Null(value0.Value.Next);
@@ -245,9 +245,9 @@
                 Last = 0,
                 Next = 1
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "A"
                 }
@@ -255,13 +255,13 @@
 
             var state = new TestLinkedCollectionState(stateManager, keyMock.Object);
 
-            var values = new List<TestLinkedState>
+            var values = new List<TestState>
             {
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I1"
                 },
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I2"
                 },
@@ -274,19 +274,19 @@
             Assert.Equal(0, manifest.First);
             Assert.Equal(2, manifest.Last);
             Assert.Equal(3, manifest.Next);
-            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:0", cts.Token);
+            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:0", cts.Token);
             Assert.True(value0.HasValue);
             Assert.Null(value0.Value.Previous);
             Assert.Equal(1, value0.Value.Next);
             Assert.NotNull(value0.Value.Value);
             Assert.Equal("A", value0.Value.Value.Value);
-            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:1", cts.Token);
+            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:1", cts.Token);
             Assert.True(value1.HasValue);
             Assert.Equal(0, value1.Value.Previous);
             Assert.Equal(2, value1.Value.Next);
             Assert.NotNull(value1.Value.Value);
             Assert.Equal("I1", value1.Value.Value.Value);
-            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:2", cts.Token);
+            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:2", cts.Token);
             Assert.True(value2.HasValue);
             Assert.Equal(1, value2.Value.Previous);
             Assert.Null(value2.Value.Next);
@@ -310,18 +310,18 @@
                 Last = 1,
                 Next = 2
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
                 Next = 1,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "A"
                 }
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestState>
             {
                 Previous = 0,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "B"
                 }
@@ -329,13 +329,13 @@
 
             var state = new TestLinkedCollectionState(stateManager, keyMock.Object);
 
-            var values = new List<TestLinkedState>
+            var values = new List<TestState>
             {
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I1"
                 },
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I2"
                 },
@@ -348,25 +348,25 @@
             Assert.Equal(2, manifest.First);
             Assert.Equal(1, manifest.Last);
             Assert.Equal(4, manifest.Next);
-            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:2", cts.Token);
+            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:2", cts.Token);
             Assert.True(value0.HasValue);
             Assert.Null(value0.Value.Previous);
             Assert.Equal(3, value0.Value.Next);
             Assert.NotNull(value0.Value.Value);
             Assert.Equal("I1", value0.Value.Value.Value);
-            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:3", cts.Token);
+            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:3", cts.Token);
             Assert.True(value1.HasValue);
             Assert.Equal(2, value1.Value.Previous);
             Assert.Equal(0, value1.Value.Next);
             Assert.NotNull(value1.Value.Value);
             Assert.Equal("I2", value1.Value.Value.Value);
-            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:0", cts.Token);
+            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:0", cts.Token);
             Assert.True(value2.HasValue);
             Assert.Equal(3, value2.Value.Previous);
             Assert.Equal(1, value2.Value.Next);
             Assert.NotNull(value2.Value.Value);
             Assert.Equal("A", value2.Value.Value.Value);
-            var value3 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:1", cts.Token);
+            var value3 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:1", cts.Token);
             Assert.True(value3.HasValue);
             Assert.Equal(0, value3.Value.Previous);
             Assert.Null(value3.Value.Next);
@@ -390,18 +390,18 @@
                 Last = 1,
                 Next = 2
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
                 Next = 1,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "A"
                 }
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestState>
             {
                 Previous = 0,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "B"
                 }
@@ -409,13 +409,13 @@
 
             var state = new TestLinkedCollectionState(stateManager, keyMock.Object);
 
-            var values = new List<TestLinkedState>
+            var values = new List<TestState>
             {
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I1"
                 },
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I2"
                 },
@@ -428,25 +428,25 @@
             Assert.Equal(0, manifest.First);
             Assert.Equal(1, manifest.Last);
             Assert.Equal(4, manifest.Next);
-            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:0", cts.Token);
+            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:0", cts.Token);
             Assert.True(value0.HasValue);
             Assert.Null(value0.Value.Previous);
             Assert.Equal(2, value0.Value.Next);
             Assert.NotNull(value0.Value.Value);
             Assert.Equal("A", value0.Value.Value.Value);
-            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:2", cts.Token);
+            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:2", cts.Token);
             Assert.True(value1.HasValue);
             Assert.Equal(0, value1.Value.Previous);
             Assert.Equal(3, value1.Value.Next);
             Assert.NotNull(value1.Value.Value);
             Assert.Equal("I1", value1.Value.Value.Value);
-            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:3", cts.Token);
+            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:3", cts.Token);
             Assert.True(value2.HasValue);
             Assert.Equal(2, value2.Value.Previous);
             Assert.Equal(1, value2.Value.Next);
             Assert.NotNull(value2.Value.Value);
             Assert.Equal("I2", value2.Value.Value.Value);
-            var value3 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:1", cts.Token);
+            var value3 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:1", cts.Token);
             Assert.True(value3.HasValue);
             Assert.Equal(3, value3.Value.Previous);
             Assert.Null(value3.Value.Next);
@@ -470,18 +470,18 @@
                 Last = 1,
                 Next = 2
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
                 Next = 1,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "A"
                 }
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestState>
             {
                 Previous = 0,
-                Value = new TestLinkedState
+                Value = new TestState
                 {
                     Value = "B"
                 }
@@ -489,13 +489,13 @@
 
             var state = new TestLinkedCollectionState(stateManager, keyMock.Object);
 
-            var values = new List<TestLinkedState>
+            var values = new List<TestState>
             {
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I1"
                 },
-                new TestLinkedState
+                new TestState
                 {
                     Value = "I2"
                 },
@@ -508,25 +508,25 @@
             Assert.Equal(0, manifest.First);
             Assert.Equal(3, manifest.Last);
             Assert.Equal(4, manifest.Next);
-            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:0", cts.Token);
+            var value0 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:0", cts.Token);
             Assert.True(value0.HasValue);
             Assert.Null(value0.Value.Previous);
             Assert.Equal(1, value0.Value.Next);
             Assert.NotNull(value0.Value.Value);
             Assert.Equal("A", value0.Value.Value.Value);
-            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:1", cts.Token);
+            var value1 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:1", cts.Token);
             Assert.True(value1.HasValue);
             Assert.Equal(0, value1.Value.Previous);
             Assert.Equal(2, value1.Value.Next);
             Assert.NotNull(value1.Value.Value);
             Assert.Equal("B", value1.Value.Value.Value);
-            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:2", cts.Token);
+            var value2 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:2", cts.Token);
             Assert.True(value2.HasValue);
             Assert.Equal(1, value2.Value.Previous);
             Assert.Equal(3, value2.Value.Next);
             Assert.NotNull(value2.Value.Value);
             Assert.Equal("I1", value2.Value.Value.Value);
-            var value3 = await stateManager.TryGetStateAsync<LinkedNode<TestLinkedState>>("TestName:3", cts.Token);
+            var value3 = await stateManager.TryGetStateAsync<LinkedNode<TestState>>("TestName:3", cts.Token);
             Assert.True(value3.HasValue);
             Assert.Equal(2, value3.Value.Previous);
             Assert.Null(value3.Value.Next);
@@ -543,13 +543,13 @@
 
             var cts = new CancellationTokenSource(1000);
 
-            var values = new List<TestLinkedState>
+            var values = new List<TestState>
             {
-                new TestLinkedState
+                new TestState
                 {
                     Value = "A"
                 },
-                new TestLinkedState
+                new TestState
                 {
                     Value = "B"
                 }
@@ -562,12 +562,12 @@
                 Last = 1,
                 Next = 2
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:0", new LinkedNode<TestState>
             {
                 Next = 1,
                 Value = values[0]
             }, cts.Token);
-            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestLinkedState>
+            await stateManager.AddStateAsync("TestName:1", new LinkedNode<TestState>
             {
                 Previous = 0,
                 Value = values[1]
@@ -575,7 +575,7 @@
 
             var state = new TestLinkedCollectionState(stateManager, keyMock.Object);
 
-            var extractedValues = new List<TestLinkedState>();
+            var extractedValues = new List<TestState>();
             var enumerator = state.GetAsyncEnumerator();
             Assert.Null(enumerator.Current);
 
@@ -593,31 +593,26 @@
         }
     }
 
-    public class TestLinkedCollectionState : LinkedCollectionStateBase<TestLinkedState>
+    public class TestLinkedCollectionState : LinkedCollectionStateBase<TestState>
     {
         public TestLinkedCollectionState(IActorStateManager stateManager, IStateKey key)
             : base(stateManager, key)
         {
         }
 
-        public Task TestInsertFirstAsync(IEnumerable<TestLinkedState> values, CancellationToken cancellationToken)
+        public Task TestInsertFirstAsync(IEnumerable<TestState> values, CancellationToken cancellationToken)
         {
             return InsertFirstAsync(values, cancellationToken);
         }
 
-        public Task TestInsertAtAsync(long index, IEnumerable<TestLinkedState> values, CancellationToken cancellationToken)
+        public Task TestInsertAtAsync(long index, IEnumerable<TestState> values, CancellationToken cancellationToken)
         {
             return InsertAtAsync(index, values, cancellationToken);
         }
 
-        public Task TestInsertLastAsync(IEnumerable<TestLinkedState> values, CancellationToken cancellationToken)
+        public Task TestInsertLastAsync(IEnumerable<TestState> values, CancellationToken cancellationToken)
         {
             return InsertLastAsync(values, cancellationToken);
         }
-    }
-
-    public class TestLinkedState
-    {
-        public string Value { get; set; }
     }
 }

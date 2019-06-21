@@ -71,6 +71,11 @@
         /// <inheritdoc />
         public async Task<ConditionalValue<T>> TryFindAsync(Predicate<T> match, CancellationToken cancellationToken)
         {
+            if (match is null)
+            {
+                throw new ArgumentNullException(nameof(match));
+            }
+
             var manifestResult = await StateManager.TryGetStateAsync<LinkedManifest>(Name, cancellationToken);
             if (!manifestResult.HasValue)
             {
