@@ -119,8 +119,8 @@
         private async Task ValidateLengthAsync(CancellationToken cancellationToken)
         {
             if (_isLengthValidated) return;
-            var actualLength = await _stateManager.TryGetStateAsync<long>(Name, cancellationToken);
-            if (actualLength.HasValue && actualLength.Value != Length)
+            var actualLength = await _stateManager.GetOrAddStateAsync(Name, Length, cancellationToken);
+            if (actualLength != Length)
             {
                 throw new InvalidOperationException("Provided Length for ArrayState does not match Length saved into actual state");
             }

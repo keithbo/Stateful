@@ -11,6 +11,11 @@
     public interface IArrayState<T> : ICollectionState<T>
     {
         /// <summary>
+        /// The number of values possible in this array.
+        /// </summary>
+        long Length { get; }
+
+        /// <summary>
         /// Gets the <typeparamref name="T"/> at <paramref name="index"/>
         /// </summary>
         /// <param name="index">Index of item to retrieve</param>
