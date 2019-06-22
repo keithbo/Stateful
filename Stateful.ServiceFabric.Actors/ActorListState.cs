@@ -7,6 +7,9 @@
     using Microsoft.ServiceFabric.Actors.Runtime;
     using Stateful.ServiceFabric.Actors.Internals;
 
+    /// <summary>
+    /// Indexed state collection. This state is a linked-list collection that can be accessed via absolute index.
+    /// </summary>
     public class ActorListState<T> : LinkedCollectionStateBase<T>, IListState<T>
     {
         public ActorListState(IActorStateManager stateManager, IStateKey key)

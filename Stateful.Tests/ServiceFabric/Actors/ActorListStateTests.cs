@@ -206,7 +206,7 @@
             manifest = await stateManager.TryGetStateAsync<LinkedManifest>("TestName", cts.Token);
             Assert.True(manifest.HasValue, "Manifest was expected to exist");
             Assert.Equal(0, manifest.Value.Count);
-            Assert.Equal(2, manifest.Value.Next);
+            Assert.Equal(0, manifest.Value.Next);
             Assert.Null(manifest.Value.First);
             Assert.Null(manifest.Value.Last);
         }

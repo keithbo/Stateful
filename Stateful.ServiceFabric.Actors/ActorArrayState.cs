@@ -5,6 +5,11 @@
     using System.Threading.Tasks;
     using Microsoft.ServiceFabric.Actors.Runtime;
 
+    /// <summary>
+    /// Fixed length state collection. This state collection treats each state value as a direct index key value into the state manager.
+    /// The given state <see cref="ActorArrayState{T}.Name"/> stores the defined long length of the array.
+    /// If state has been written this value must match what is specified at compile time via constructor input value.
+    /// </summary>
     public class ActorArrayState<T> : IArrayState<T>
     {
         private const string IndexKeyFormat = "{0}:{1:X}";
