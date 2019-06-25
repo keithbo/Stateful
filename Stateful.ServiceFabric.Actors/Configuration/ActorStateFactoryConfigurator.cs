@@ -10,12 +10,13 @@
 
         public ActorStateFactoryConfigurator(IActorStateFactoryConfiguration configuration)
         {
-            _configuration = configuration;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         /// <inheritdoc />
         public IActorStateManager StateManager
         {
+            get => _configuration.StateManager;
             set => _configuration.StateManager = value;
         }
 

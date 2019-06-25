@@ -5,9 +5,9 @@
 
     public class ActorStateFactoryConfiguration : IActorStateFactoryConfiguration
     {
-        public IActorStateManager StateManager { get; set; }
-
         private readonly List<IActorStateActivator> _activations = new List<IActorStateActivator>();
+
+        public IActorStateManager StateManager { get; set; }
 
         public void AddStateActivator(IActorStateActivator activator)
         {

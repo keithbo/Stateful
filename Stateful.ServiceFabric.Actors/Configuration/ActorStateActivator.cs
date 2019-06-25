@@ -11,8 +11,8 @@
 
         public ActorStateActivator(IStateKey key, Func<IActorStateManager, IState> factoryMethod)
         {
-            Key = key;
-            _factoryMethod = factoryMethod;
+            Key = key ?? throw new ArgumentNullException(nameof(key));
+            _factoryMethod = factoryMethod ?? throw new ArgumentNullException(nameof(factoryMethod));
         }
 
         public IState Resolve(IActorStateManager stateManager)

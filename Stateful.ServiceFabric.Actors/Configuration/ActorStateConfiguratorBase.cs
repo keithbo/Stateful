@@ -1,5 +1,6 @@
 ﻿namespace Stateful.ServiceFabric.Actors.Configuration
 {
+    using System;
     using Stateful.Configuration;
 
     public abstract class ActorStateConfiguratorBase<TConfiguration> : IStateConfigurator
@@ -9,7 +10,7 @@
 
         protected ActorStateConfiguratorBase(TConfiguration configuration)
         {
-            Configuration = configuration;
+            Configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
         }
 
         public IStateKey Key

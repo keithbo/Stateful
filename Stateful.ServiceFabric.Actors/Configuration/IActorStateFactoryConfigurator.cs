@@ -6,7 +6,7 @@
 
     public interface IActorStateFactoryConfigurator
     {
-        IActorStateManager StateManager { set; }
+        IActorStateManager StateManager { get; }
 
         void AddObject<TValue>(Action<IStateConfigurator> configure);
 

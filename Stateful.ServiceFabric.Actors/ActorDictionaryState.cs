@@ -299,6 +299,10 @@
             }
 
             manifest.Count--;
+            if (manifest.Count == 0)
+            {
+                manifest.Next = 0;
+            }
             await StateManager.SetStateAsync(Name, manifest, cancellationToken);
 
             return true;
