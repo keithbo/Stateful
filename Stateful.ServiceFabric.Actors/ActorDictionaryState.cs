@@ -42,13 +42,14 @@
 
             var manifest = manifestResult.Value;
             HashBucket currentBucket;
-            for (var bucketIndex = manifest.Head; bucketIndex.HasValue; bucketIndex = currentBucket.Next)
+            for (var bucketIndex = manifest.Head; bucketIndex.HasValue; bucketIndex = currentBucket?.Next)
             {
                 var bucketName = IndexToBucket(bucketIndex.Value);
                 currentBucket = await StateManager.GetStateAsync<HashBucket>(bucketName, cancellationToken);
+                if (currentBucket is null) continue;
 
                 HashKeyNode<TKey> currentKeyNode;
-                for (var keyIndex = currentBucket.Head; keyIndex.HasValue; keyIndex = currentKeyNode.Next)
+                for (var keyIndex = currentBucket.Head; keyIndex.HasValue; keyIndex = currentKeyNode?.Next)
                 {
                     var keyName = IndexToKey(bucketIndex.Value, keyIndex.Value);
                     var valueName = IndexToValue(bucketIndex.Value, keyIndex.Value);
@@ -160,20 +161,22 @@
             var found = false;
             var manifest = manifestResult.Value;
             HashBucket currentBucket;
-            for (var bucketIndex = manifest.Head; !found && bucketIndex.HasValue; bucketIndex = currentBucket.Next)
+            for (var bucketIndex = manifest.Head; !found && bucketIndex.HasValue; bucketIndex = currentBucket?.Next)
             {
                 var bucketName = IndexToBucket(bucketIndex.Value);
                 currentBucket = await StateManager.GetStateAsync<HashBucket>(bucketName, cancellationToken);
+                if (currentBucket is null) continue;
 
                 HashKeyNode<TKey> currentKeyNode;
-                for (var keyIndex = currentBucket.Head; !found && keyIndex.HasValue; keyIndex = currentKeyNode.Next)
+                for (var keyIndex = currentBucket.Head; !found && keyIndex.HasValue; keyIndex = currentKeyNode?.Next)
                 {
                     var keyName = IndexToKey(bucketIndex.Value, keyIndex.Value);
                     var valueName = IndexToValue(bucketIndex.Value, keyIndex.Value);
 
                     currentKeyNode = await StateManager.GetStateAsync<HashKeyNode<TKey>>(keyName, cancellationToken);
-                    var value = await StateManager.GetStateAsync<TValue>(valueName, cancellationToken);
+                    if (currentKeyNode is null) continue;
 
+                    var value = await StateManager.GetStateAsync<TValue>(valueName, cancellationToken);
                     found = predicate(new KeyValuePair<TKey, TValue>(currentKeyNode.Key, value));
                 }
             }
