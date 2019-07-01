@@ -5,10 +5,11 @@
     <Authors>Keith Bosacker</Authors>
     <Company />
     <Description>A simple abstraction library for asynchronous state persistence and retrieval. Provides an asynchronous facade of common .NET data structures: Object, Array, List, Stack, Queue and Dictionary</Description>
+    <PackageTags>State Unit Of Work Asynchronous Async Storage Persistence</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/keithbo/Stateful</PackageProjectUrl>
     <RepositoryUrl>https://github.com/keithbo/Stateful</RepositoryUrl>
-    <PackageTags>State Unit Of Work Asynchronous Async Storage Persistence</PackageTags>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
-
 </Project>
