@@ -9,10 +9,6 @@
 
     public class ActorDictionaryState<TKey, TValue> : IDictionaryState<TKey, TValue> where TKey : IEquatable<TKey>, IComparable<TKey>
     {
-        protected const string BucketIndexFormat = "{0}:{1:X}";
-        protected const string KeyIndexFormat = "{0}:{1:X}:{2:X}";
-        protected const string ValueIndexFormat = "{0}:{1:X}:{2:X}:v";
-
         protected string Name => Key.ToString();
 
         protected IActorStateManager StateManager { get; }
@@ -394,17 +390,17 @@
 
         protected string IndexToBucket(long bucket)
         {
-            return string.Format(BucketIndexFormat, Name, bucket);
+            return string.Format(Constants.DictionaryBucketIndexFormat, Name, bucket);
         }
 
         protected string IndexToKey(long bucket, long index)
         {
-            return string.Format(KeyIndexFormat, Name, bucket, index);
+            return string.Format(Constants.DictionaryKeyIndexFormat, Name, bucket, index);
         }
 
         protected string IndexToValue(long bucket, long index)
         {
-            return string.Format(ValueIndexFormat, Name, bucket, index);
+            return string.Format(Constants.DictionaryValueIndexFormat, Name, bucket, index);
         }
 
         private class AsyncEnumerator : IAsyncEnumerator<KeyValuePair<TKey, TValue>>

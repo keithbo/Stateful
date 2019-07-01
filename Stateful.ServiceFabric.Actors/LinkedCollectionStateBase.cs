@@ -9,8 +9,6 @@
 
     public abstract class LinkedCollectionStateBase<T> : ICollectionState<T>
     {
-        protected const string IndexKeyFormat = "{0}:{1:X}";
-
         protected IActorStateManager StateManager { get; }
 
         protected string Name => Key.ToString();
@@ -326,7 +324,7 @@
 
         protected string IndexToKey(long index)
         {
-            return string.Format(IndexKeyFormat, Name, index);
+            return string.Format(Constants.CollectionIndexKeyFormat, Name, index);
         }
 
         protected async Task<(string Key, LinkedNode<T> Node)> FindNodeAsync(long? startIndex, Func<string, LinkedNode<T>, bool> predicate, CancellationToken cancellationToken)

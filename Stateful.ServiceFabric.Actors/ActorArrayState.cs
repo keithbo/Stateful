@@ -12,8 +12,6 @@
     /// </summary>
     public class ActorArrayState<T> : IArrayState<T>
     {
-        private const string IndexKeyFormat = "{0}:{1:X}";
-
         private readonly IActorStateManager _stateManager;
         private bool _isLengthValidated;
 
@@ -118,7 +116,7 @@
 
         protected string IndexToKey(long index)
         {
-            return string.Format(IndexKeyFormat, Name, index);
+            return string.Format(Constants.CollectionIndexKeyFormat, Name, index);
         }
 
         private async Task ValidateLengthAsync(CancellationToken cancellationToken)
